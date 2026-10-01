@@ -606,7 +606,7 @@ namespace LiteDbExplorer.Controls
                 return Result.Failure($"Field \"{value}\" already exists!");
             }
 
-            return Result.Ok();
+            return Result.Success();
         }
 
         private async Task AddExistingFieldHandler(KeyValuePair<string, BsonType>? keyValuePair)

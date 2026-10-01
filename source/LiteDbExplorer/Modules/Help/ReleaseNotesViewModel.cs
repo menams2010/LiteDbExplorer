@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using LiteDbExplorer.Framework.Windows;
@@ -47,11 +48,12 @@ namespace LiteDbExplorer.Modules.Help
             ReleaseNotes = null;
         }
 
-        protected override async void OnActivate()
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
+            await base.OnActivatedAsync(cancellationToken);
             if (ReleaseNotes == null)
             {
-                await GetReleaseNotes().ConfigureAwait(false);
+                await GetReleaseNotes();
             }
         }
 

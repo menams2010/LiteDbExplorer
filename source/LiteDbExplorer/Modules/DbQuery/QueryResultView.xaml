@@ -44,7 +44,7 @@
                     <materialDesign:PackIcon Kind="FileTree" Style="{StaticResource ToolPackIcon}" />
                 </ListBoxItem>
                 <ListBoxItem ToolTip="JSON View">
-                    <materialDesign:PackIcon Kind="Json" Style="{StaticResource ToolPackIcon}" />
+                    <materialDesign:PackIcon Kind="CodeJson" Style="{StaticResource ToolPackIcon}" />
                 </ListBoxItem>
             </ListBox>
             <TextBlock Text="Query Results" Style="{StaticResource ToolPanelTitle}" />

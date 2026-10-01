@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using MaterialDesignThemes.Wpf;
@@ -13,19 +12,15 @@ namespace LiteDbExplorer.Wpf
             SetLightDark(isDark);
         }
 
-        public override void SetLightDark(bool isDark)
+        public virtual void SetLightDark(bool isDark)
         {
-            if (!TryFindAndReplaceMergedDictionary(
-                @"(\/MaterialDesignThemes.Wpf;component\/Themes\/MaterialDesignTheme\.)((Light)|(Dark))",
-                $"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.{(isDark ? "Dark" : "Light")}.xaml")
-            )
-            {
-                throw new ApplicationException("Unable to find Light/Dark base theme in Application resources.");
-            }
+            var theme = GetTheme();
+            theme.SetBaseTheme(isDark ? BaseTheme.Dark : BaseTheme.Light);
+            SetTheme(theme);
 
             TryFindAndReplaceMergedDictionary(
-                @"(\/MahApps.Metro;component\/Styles\/Accents\/)((BaseLight)|(BaseDark))",
-                $"pack://application:,,,/MahApps.Metro;component/Styles/Accents/{(isDark ? "BaseDark" : "BaseLight")}.xaml");
+                @"\/MahApps.Metro;component\/Styles\/Themes\/(Light|Dark)\.Blue\.xaml",
+                $"pack://application:,,,/MahApps.Metro;component/Styles/Themes/{(isDark ? "Dark" : "Light")}.Blue.xaml");
 
             TryFindAndReplaceMergedDictionary(
                 @"(\/LiteDbExplorer.Wpf;component\/Themes\/ApplicationColors\.)((Light)|(Dark))",
@@ -38,39 +33,27 @@ namespace LiteDbExplorer.Wpf
 
         private bool TryFindAndReplaceMergedDictionary(string pattern, string newResourceDictionarySource)
         {
-            var existingResourceDictionary = FindResourceDictionary(pattern);
-            if (existingResourceDictionary == null)
+            return TryReplaceMergedDictionary(Application.Current.Resources, pattern, newResourceDictionarySource);
+        }
+
+        private static bool TryReplaceMergedDictionary(ResourceDictionary owner, string pattern, string source)
+        {
+            for (var i = 0; i < owner.MergedDictionaries.Count; i++)
             {
-                return false;
+                var dictionary = owner.MergedDictionaries[i];
+                if (dictionary.Source != null && Regex.IsMatch(dictionary.Source.OriginalString, pattern, RegexOptions.IgnoreCase))
+                {
+                    owner.MergedDictionaries[i] = new ResourceDictionary {Source = new Uri(source)};
+                    return true;
+                }
+
+                if (TryReplaceMergedDictionary(dictionary, pattern, source))
+                {
+                    return true;
+                }
             }
 
-            SwitchMergedDictionaries(existingResourceDictionary, newResourceDictionarySource);
-
-            return true;
-        }
-
-        private void SwitchMergedDictionaries(
-            ResourceDictionary oldResourceDictionary,
-            string newResourceDictionarySource)
-        {
-            var newResourceDictionary = new ResourceDictionary {Source = new Uri(newResourceDictionarySource)};
-            SwitchMergedDictionaries(oldResourceDictionary, newResourceDictionary);
-        }
-
-        private void SwitchMergedDictionaries(ResourceDictionary oldResourceDictionary,
-            ResourceDictionary newResourceDictionary)
-        {
-            Application.Current.Resources.MergedDictionaries.Remove(oldResourceDictionary);
-            Application.Current.Resources.MergedDictionaries.Add(newResourceDictionary);
-        }
-
-        private ResourceDictionary FindResourceDictionary(string pattern)
-        {
-            return Application.Current.Resources
-                .MergedDictionaries
-                .SelectMany(p => p.MergedDictionaries)
-                .Where(rd => rd.Source != null)
-                .FirstOrDefault(rd => Regex.Match(rd.Source.OriginalString, pattern).Success);
+            return false;
         }
     }
 }

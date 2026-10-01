@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using LiteDbExplorer.Wpf.Framework;
@@ -11,10 +12,10 @@ namespace LiteDbExplorer.Modules.Shared
         Guid Id { get; }
         string ContentId { get; }
         IObservableCollection<IDocument> Documents { get; }
-        void OpenDocument(IDocument model);
-        void CloseDocument(IDocument document);
-        void ActivateItem(IDocument item);
-        void DeactivateItem(IDocument item, bool close);
+        Task OpenDocument(IDocument model);
+        Task CloseDocument(IDocument document);
+        Task ActivateItemAsync(IDocument item, CancellationToken cancellationToken = default(CancellationToken));
+        Task DeactivateItemAsync(IDocument item, bool close, CancellationToken cancellationToken = default(CancellationToken));
         Task OpenDocument<TDocument>() where TDocument : IDocument;
 
         Task<TDocument> OpenDocument<TDocument, TReferenceId>(TDocument document, TReferenceId initPayload) where TDocument : IDocument<TReferenceId> where TReferenceId : IReferenceId;

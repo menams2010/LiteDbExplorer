@@ -41,14 +41,14 @@ namespace LiteDbExplorer.Core
         public string Serialize(bool pretty = false, bool decoded = true)
         {
             var json = string.Empty;
-            
+
             if (IsArray)
             {
-                json = JsonSerializer.Serialize(AsArray, pretty, false);
+                json = JsonSerializer.Serialize(AsArray);
             }
             else if (IsDocument)
             {
-                json = JsonSerializer.Serialize(AsDocument, pretty, false);
+                json = JsonSerializer.Serialize(AsDocument);
             }
 
             return decoded ? EncodingExtensions.DecodeEncodedNonAsciiCharacters(json) : json;
@@ -58,11 +58,11 @@ namespace LiteDbExplorer.Core
         {
             if (IsArray)
             {
-                JsonSerializer.Serialize(AsArray, writer, pretty, false);
+                JsonSerializer.Serialize(AsArray, writer);
             }
             else if (IsDocument)
             {
-                JsonSerializer.Serialize(AsDocument, writer, pretty, false);
+                JsonSerializer.Serialize(AsDocument, writer);
             }
         }
 

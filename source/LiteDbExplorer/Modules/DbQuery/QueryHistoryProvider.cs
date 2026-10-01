@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Threading;
 using DynamicData;
 using DynamicData.Binding;
 using JetBrains.Annotations;
@@ -42,7 +43,7 @@ namespace LiteDbExplorer.Modules.DbQuery
                 .Connect()
                 .DeferUntilLoaded()
                 .Sort(SortExpressionComparer<RawQueryHistory>.Descending(t => t.LastRunAt))
-                .ObserveOnDispatcher()
+                .ObserveOn(new DispatcherSynchronizationContext())
                 .Bind(out _queryHistories)
                 .Subscribe();
 

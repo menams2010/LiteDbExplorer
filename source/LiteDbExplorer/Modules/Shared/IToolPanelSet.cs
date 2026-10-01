@@ -1,10 +1,12 @@
-﻿using LiteDbExplorer.Wpf.Framework.Shell;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using LiteDbExplorer.Wpf.Framework.Shell;
 
 namespace LiteDbExplorer.Modules.Shared
 {
     public interface IToolPanelSet
     {
-        void ActivateItem(IToolPanel item);
-        void DeactivateItem(IToolPanel item, bool close);
+        Task ActivateItemAsync(IToolPanel item, CancellationToken cancellationToken = default(CancellationToken));
+        Task DeactivateItemAsync(IToolPanel item, bool close, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

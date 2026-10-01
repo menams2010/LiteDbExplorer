@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -66,9 +67,9 @@ namespace LiteDbExplorer.Modules.Help
 
         public int SelectedStepIndex { get; private set; }
 
-        protected override async void OnActivate()
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
-            base.OnActivate();
+            await base.OnActivatedAsync(cancellationToken);
 
             IsBusy = true;
 

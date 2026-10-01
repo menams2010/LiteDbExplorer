@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Threading;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 using Humanizer;
 using LiteDbExplorer.Framework.Windows;
@@ -28,9 +30,9 @@ namespace LiteDbExplorer.Modules.Help
             DisplayName = "About";
         }
 
-        protected override void OnActivate()
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
-            base.OnActivate();
+            await base.OnActivatedAsync(cancellationToken);
 
             CurrentVersion = AppConstants.Application.CurrentVersion;
 

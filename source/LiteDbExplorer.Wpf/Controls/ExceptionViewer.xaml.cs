@@ -584,7 +584,14 @@ namespace LiteDbExplorer.Controls
             }
 
             data.SetData(DataFormats.StringFormat, range.Text);
-            Clipboard.SetDataObject(data);
+            try
+            {
+                Clipboard.SetDataObject(data);
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                MessageBox.Show("Unable to access clipboard right now. Please try again.", "Clipboard", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
             // The Inlines that were being displayed are now in the temporary document we just built,
             // causing them to disappear from the viewer.  This puts them back.

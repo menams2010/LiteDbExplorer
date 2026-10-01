@@ -143,7 +143,7 @@
             <MenuItem Header="Help" Height="35">
                 <MenuItem Header="Homepage..." x:Name="OpenHomepage">
                     <MenuItem.Icon>
-                        <materialDesign:PackIcon Kind="GithubCircle" />
+                        <materialDesign:PackIcon Kind="Github" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="ShowReleaseNotes" Header="Release Notes">

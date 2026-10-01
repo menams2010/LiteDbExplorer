@@ -208,7 +208,7 @@ namespace LiteDbExplorer.Modules.ImportData.Handlers
                         {
                             if (createColumns)
                             {
-                                for (var i = 0; i < csv.Context.Record.Length; i++)
+                                for (var i = 0; i < csv.Parser.Record.Length; i++)
                                 {
                                     dt.Columns.Add($"Column_{i}");
                                 }
@@ -216,9 +216,9 @@ namespace LiteDbExplorer.Modules.ImportData.Handlers
                             }
 
                             var row = dt.NewRow();
-                            for (var i = 0; i < csv.Context.Record.Length; i++)
+                            for (var i = 0; i < csv.Parser.Record.Length; i++)
                             {
-                                row[i] = csv.Context.Record[i];
+                                row[i] = csv.Parser.Record[i];
                             }
 
                             dt.Rows.Add(row);

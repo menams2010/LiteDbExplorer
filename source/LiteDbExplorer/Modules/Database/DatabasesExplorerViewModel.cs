@@ -49,7 +49,7 @@ namespace LiteDbExplorer.Modules.Database
             DropCollectionCommand = new AsyncCommand<CollectionReference>(DropCollection, CanDropCollection, this);
             ExportCollectionCommand = new AsyncCommand<CollectionReference>(ExportCollection, CanExportCollection, this);
             
-            ImportDataCommand = new RelayCommand(_ => ImportData(), _ => CanImportData());
+            ImportDataCommand = new AsyncCommand(ImportData, CanImportData, this);
 
             OpenRecentItemCommand = new AsyncCommand<RecentDatabaseFileInfo>(OpenRecentItem);
 
@@ -198,7 +198,7 @@ namespace LiteDbExplorer.Modules.Database
                     await _applicationInteraction.ActivateDefaultCollectionView(collectionReference);
                     break;
                 case DatabaseReference databaseReference:
-                    _applicationInteraction.OpenDatabaseProperties(databaseReference);
+                    await _applicationInteraction.OpenDatabaseProperties(databaseReference);
                     break;
             }
         }
@@ -271,9 +271,7 @@ namespace LiteDbExplorer.Modules.Database
         [UsedImplicitly]
         public Task EditDbProperties(DatabaseReference databaseReference)
         {
-            _applicationInteraction.OpenDatabaseProperties(databaseReference);
-
-            return Task.CompletedTask;
+            return _applicationInteraction.OpenDatabaseProperties(databaseReference);
         }
 
         [UsedImplicitly]
@@ -384,7 +382,7 @@ namespace LiteDbExplorer.Modules.Database
         }
 
         [UsedImplicitly]
-        public void ImportData()
+        public async Task ImportData()
         {
             var options = new ImportDataOptions();
             if (SelectedCollection != null)
@@ -397,7 +395,7 @@ namespace LiteDbExplorer.Modules.Database
                 options.DatabaseReference = SelectedDatabase;
             }
 
-            _applicationInteraction.ShowImportWizard(options);
+            await _applicationInteraction.ShowImportWizard(options);
         }
 
         [UsedImplicitly]

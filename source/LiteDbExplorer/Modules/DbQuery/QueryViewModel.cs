@@ -114,7 +114,7 @@ namespace LiteDbExplorer.Modules.DbQuery
         {
             if (item == null)
             {
-                TryClose(false);
+                Execute.OnUIThread(async () => await TryCloseAsync(false));
                 return;
             }
 
@@ -240,7 +240,7 @@ namespace LiteDbExplorer.Modules.DbQuery
                 _view?.InsetDocumentText(item.RawQuery);
             }
 
-            return Task.FromResult(Result.Ok());
+            return Task.FromResult(Result.Success());
         }
     }
 }

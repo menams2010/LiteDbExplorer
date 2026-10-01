@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Caliburn.Micro;
 using LiteDbExplorer.Framework;
@@ -19,8 +21,8 @@ namespace LiteDbExplorer.Wpf.Modules.Settings
 
         public SettingsViewModel()
         {
-            CancelCommand = new RelayCommand(o=> DiscardChanges(o, true));
-            OkCommand = new RelayCommand(o => SaveChanges(o, true));
+            CancelCommand = new RelayCommand(async o => await DiscardChangesAsync(o, true));
+            OkCommand = new RelayCommand(async o => await SaveChangesAsync(o, true));
 
             DisplayName = "Options";
         }
@@ -55,9 +57,9 @@ namespace LiteDbExplorer.Wpf.Modules.Settings
         public ICommand CancelCommand { get; private set; }
         public ICommand OkCommand { get; private set; }
 
-        protected override void OnInitialize()
+        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
         {
-            base.OnInitialize();
+            await base.OnInitializedAsync(cancellationToken);
             
             // Keep '_' on top
             var pages = new List<SettingsPageViewModel>();
@@ -142,13 +144,13 @@ namespace LiteDbExplorer.Wpf.Modules.Settings
             }
         }
         
-        protected override void OnDeactivate(bool close)
+        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            DiscardChanges(this, false);
-            base.OnDeactivate(close);
+            await DiscardChangesAsync(this, false);
+            await base.OnDeactivateAsync(close, cancellationToken);
         }
 
-        private void DiscardChanges(object obj, bool close)
+        private async Task DiscardChangesAsync(object obj, bool close)
         {
             if (_closeHandled)
             {
@@ -164,11 +166,11 @@ namespace LiteDbExplorer.Wpf.Modules.Settings
 
             if(close)
             {
-                TryClose(false);
+                await TryCloseAsync(false);
             }
         }
         
-        private void SaveChanges(object obj, bool close)
+        private async Task SaveChangesAsync(object obj, bool close)
         {
             if (_closeHandled)
             {
@@ -184,7 +186,7 @@ namespace LiteDbExplorer.Wpf.Modules.Settings
 
             if (close)
             {
-                TryClose(true);
+                await TryCloseAsync(true);
             }
         }
     }

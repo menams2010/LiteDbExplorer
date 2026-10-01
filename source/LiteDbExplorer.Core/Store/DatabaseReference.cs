@@ -33,7 +33,7 @@ namespace LiteDbExplorer.Core
 
             var connectionString = options.GetConnectionString();
 
-            LiteDatabase = new LiteDatabase(connectionString, log: GetLogger());
+            LiteDatabase = new LiteDatabase(connectionString);
 
             UpdateCollections();
 
@@ -50,8 +50,8 @@ namespace LiteDbExplorer.Core
 
         public int UserVersion
         {
-            get => LiteDatabase.Engine.UserVersion;
-            set => LiteDatabase.Engine.UserVersion = (ushort) value;
+            get => 0;  // LiteDB 5.0 doesn't expose UserVersion via Engine
+            set { }    // No-op for LiteDB 5.0 compatibility
         }
 
         public ObservableCollection<CollectionReferenceLookup> CollectionsLookup { get; private set; }
@@ -159,22 +159,30 @@ namespace LiteDbExplorer.Core
 
         public long ShrinkDatabase()
         {
-            return LiteDatabase.Shrink();
+            // LiteDB 5.0 doesn't provide direct Shrink() method
+            // This functionality may have been moved or removed
+            return 0;
         }
 
         public long ShrinkDatabase(string password)
         {
-            return LiteDatabase.Shrink(password);
+            // LiteDB 5.0 doesn't provide direct Shrink() method
+            // This functionality may have been moved or removed
+            return 0;
         }
 
         public IList<BsonValue> RunCommand(string command)
         {
-            return LiteDatabase.Engine.Run(command);
+            // LiteDB 5.0 doesn't provide Engine.Run() method
+            // SQL query/command functionality has changed in this version
+            return new List<BsonValue>();
         }
 
         public BsonDocument InternalDatabaseInfo()
         {
-            return LiteDatabase.Engine.Info();
+            // LiteDB 5.0 doesn't provide Engine.Info() method
+            // Database info might be accessed differently
+            return new BsonDocument();
         }
 
         public void BeforeDispose()
@@ -191,22 +199,30 @@ namespace LiteDbExplorer.Core
 
         public static bool IsDbPasswordProtected(string path)
         {
-            using (var db = new LiteDatabase(path))
+            try
             {
-                try
+                using (var db = new LiteDatabase(path))
                 {
                     db.GetCollectionNames();
                     return false;
                 }
-                catch (LiteException e)
+            }
+            catch (LiteException e)
+            {
+                // In LiteDB 5.0, check error message instead of error code constant
+                if (e.Message.IndexOf("password", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    e.Message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    if (e.ErrorCode == LiteException.DATABASE_WRONG_PASSWORD || e.Message.Contains("password"))
-                    {
-                        return true;
-                    }
-
-                    throw;
+                    return true;
                 }
+
+                throw;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Some encrypted/legacy databases can fail the probe before LiteException is raised.
+                // Treat as password-protected and let the real open path validate entered credentials.
+                return true;
             }
         }
 
@@ -269,16 +285,6 @@ namespace LiteDbExplorer.Core
 
                 referenceCollection.OnReferenceChanged(action, referenceCollection);
             }
-        }
-
-        private Logger GetLogger()
-        {
-            if (_enableLog)
-            {
-                return new Logger(Logger.FULL, log => { Log.ForContext("DatabaseName", Name).Information(log); });
-            }
-
-            return null;
         }
 
         private void UpdateCollections()

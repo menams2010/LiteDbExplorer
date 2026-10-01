@@ -26,7 +26,7 @@ namespace LiteDbExplorer.Modules.Main
         {
             _eventAggregator = eventAggregator;
 
-            _eventAggregator.Subscribe(this);
+            _eventAggregator.SubscribeOnUIThread(this);
 
             DisplayName = AppConstants.Application.DisplayName;
 
@@ -94,7 +94,7 @@ namespace LiteDbExplorer.Modules.Main
 
         protected override async void OnViewLoaded(object view)
         {
-            ToolPanelsContent.ActivateItem(IoC.Get<IOutput>());
+            await ToolPanelsContent.ActivateItemAsync(IoC.Get<IOutput>());
 
             if (Properties.Settings.Default.ShowNavigationPanelOnOpen)
             {

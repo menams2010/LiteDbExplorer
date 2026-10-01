@@ -5,7 +5,6 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Humanizer;
-using Humanizer.Localisation;
 using JetBrains.Annotations;
 using LiteDbExplorer.Core;
 

@@ -49,9 +49,9 @@ namespace LiteDbExplorer.Modules.Main
         }
 
         [UsedImplicitly]
-        public void OpenIssuePage()
+        public Task OpenIssuePage()
         {
-            _applicationInteraction.ShowIssueHelper();
+            return _applicationInteraction.ShowIssueHelper();
         }
 
         [UsedImplicitly]
@@ -67,21 +67,21 @@ namespace LiteDbExplorer.Modules.Main
         }
 
         [UsedImplicitly]
-        public void OpenSettings()
+        public Task OpenSettings()
         {
-            _windowManager.ShowDialog(IoC.Get<SettingsViewModel>());
+            return _windowManager.ShowDialogAsync(IoC.Get<SettingsViewModel>());
         }
 
         [UsedImplicitly]
-        public void OpenAbout()
+        public Task OpenAbout()
         {
-            _applicationInteraction.ShowAbout();
+            return _applicationInteraction.ShowAbout();
         }
 
         [UsedImplicitly]
-        public void ShowReleaseNotes()
+        public Task ShowReleaseNotes()
         {
-            _applicationInteraction.ShowReleaseNotes();
+            return _applicationInteraction.ShowReleaseNotes();
         }
 
         [UsedImplicitly]

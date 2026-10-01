@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 using LiteDbExplorer.Core;
 
@@ -20,8 +22,9 @@ namespace LiteDbExplorer.Modules.DbDocument
 
         public DocumentReference Document { get; private set; }
 
-        protected override void OnDeactivate(bool close)
+        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
+            await base.OnDeactivateAsync(close, cancellationToken);
             if (close)
             {
                 Document = null;

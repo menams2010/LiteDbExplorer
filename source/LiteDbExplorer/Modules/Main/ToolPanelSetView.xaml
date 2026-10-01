@@ -14,7 +14,7 @@
             <Setter Property="Background" Value="{DynamicResource WhiteBrush}" />
             <Setter Property="BorderBrush" Value="{x:Null}" />
             <!--  special property for header font size  -->
-            <Setter Property="mah:ControlsHelper.HeaderFontSize" Value="{DynamicResource TabItemFontSize}" />
+            <Setter Property="mah:HeaderedControlHelper.HeaderFontSize" Value="{DynamicResource TabItemFontSize}" />
             <Setter Property="mah:TabControlHelper.UnderlineBrush" Value="{DynamicResource GrayNormalBrush}" />
             <Setter Property="mah:TabControlHelper.UnderlineMouseOverBrush" Value="{DynamicResource GrayHoverBrush}" />
             <Setter Property="mah:TabControlHelper.UnderlineMouseOverSelectedBrush"
@@ -100,7 +100,7 @@
                         <Setter Property="Margin" Value="5,0" />
                     </Style>
                     <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource MahTabItem}">
-                        <Setter Property="mah:ControlsHelper.HeaderFontSize" Value="14" />
+                        <Setter Property="mah:HeaderedControlHelper.HeaderFontSize" Value="14" />
                         <Setter Property="Padding" Value="0,10,0,6" />
                         <Setter Property="MinWidth" Value="30" />
                         <Setter Property="Background" Value="{DynamicResource MaterialDesignToolBarBackground}" />

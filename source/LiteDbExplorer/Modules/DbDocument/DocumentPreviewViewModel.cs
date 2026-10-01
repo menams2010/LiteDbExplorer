@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using JetBrains.Annotations;
@@ -36,7 +37,7 @@ namespace LiteDbExplorer.Modules.DbDocument
 
         public Orientation? SplitOrientation { get; }
 
-        public override object IconContent => new PackIcon { Kind = PackIconKind.Json, Height = 16 };
+        public override object IconContent => new PackIcon { Kind = PackIconKind.CodeJson, Height = 16 };
 
         public DocumentReference Document
         {
@@ -56,7 +57,7 @@ namespace LiteDbExplorer.Modules.DbDocument
             }
         }
         
-        public LiteFileInfo FileInfo { get; private set; }
+        public LiteFileInfo<string> FileInfo { get; private set; }
 
         public bool IsDocumentView { get; private set; }
 
@@ -125,8 +126,9 @@ namespace LiteDbExplorer.Modules.DbDocument
             _view = view as IDocumentDetailView;
         }
 
-        protected override void OnDeactivate(bool close)
+        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
+            await base.OnDeactivateAsync(close, cancellationToken);
             if (close)
             {
                 Log.Debug("Deactivate {ViewModelName}, ReferenceId {ReferenceId}", nameof(DocumentPreviewViewModel), InstanceId);
@@ -138,13 +140,13 @@ namespace LiteDbExplorer.Modules.DbDocument
         
         #region Handles
         
-        private void OnDocumentReferenceChanged(object sender, ReferenceChangedEventArgs<DocumentReference> e)
+        private async void OnDocumentReferenceChanged(object sender, ReferenceChangedEventArgs<DocumentReference> e)
         {
             switch (e.Action)
             {
                 case ReferenceNodeChangeAction.Remove:
                 case ReferenceNodeChangeAction.Dispose:
-                    TryClose();
+                    await TryCloseAsync();
                     break;
                 case ReferenceNodeChangeAction.Update:
                     SetActiveDocument(e.Reference);

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using DynamicData;
 using DynamicData.Binding;
 using JetBrains.Annotations;
@@ -50,7 +51,7 @@ namespace LiteDbExplorer.Modules.StartPage
                         .Descending(p => p.FixedAt.HasValue)
                         .ThenByDescending(p => p.FixedAt ?? p.LastOpenedAt)
                 )
-                .ObserveOnDispatcher()
+                .ObserveOn(new DispatcherSynchronizationContext())
                 .Bind(out _recentFilesFiltered)
                 .Do(p =>
                 {

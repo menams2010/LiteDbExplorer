@@ -83,8 +83,9 @@ namespace LiteDbExplorer.Modules
             }
 
             using (var stream = new FileStream(maybeFileName.Value, System.IO.FileMode.Create))
+            using (var database = new LiteDatabase(stream))
             {
-                LiteEngine.CreateDatabase(stream);
+                database.Checkpoint();
             }
 
             await OpenDatabase(maybeFileName.Value).ConfigureAwait(false);
@@ -191,7 +192,7 @@ namespace LiteDbExplorer.Modules
 
         protected virtual async Task OpenDatabaseExceptionHandler(LiteException liteException, string path, string password = "")
         {
-            if (liteException.ErrorCode == LiteException.DATABASE_WRONG_PASSWORD)
+            if (liteException.ErrorCode == LiteException.INVALID_PASSWORD)
             {
                 if (!string.IsNullOrEmpty(password))
                 {
@@ -278,7 +279,7 @@ namespace LiteDbExplorer.Modules
                 {
                     var file = database.AddFile(fileId, maybeFileName.Value);
                     var documentsCreated = new CollectionDocumentChangeEventArgs(ReferenceNodeChangeAction.Add, new [] {file}, file.Collection);
-                    return Result.Ok(documentsCreated);
+                    return Result.Success(documentsCreated);
                 }
             }
             catch (Exception exc)
@@ -302,7 +303,7 @@ namespace LiteDbExplorer.Modules
                 document.RemoveSelf();
             }
             
-            return Task.FromResult(Result.Ok());
+            return Task.FromResult(Result.Success());
         }
 
         public async Task<Result<CollectionReference>> AddCollection(IScreen context, DatabaseReference database)
@@ -320,10 +321,10 @@ namespace LiteDbExplorer.Modules
                 if (!string.IsNullOrEmpty(collectionName))
                 {
                     var collectionReference = database.AddCollection(collectionName);
-                    return Result.Ok(collectionReference);
+                    return Result.Success(collectionReference);
                 }
 
-                return Result.Ok<CollectionReference>(null);
+                return Result.Success<CollectionReference>(null);
             }
             catch (Exception exc)
             {
@@ -356,7 +357,7 @@ namespace LiteDbExplorer.Modules
                         return Result.Failure($"Collection \"{value}\" already exists!");
                     }
 
-                    return Result.Ok();
+                    return Result.Success();
                 }
 
                 var maybeName = await _applicationInteraction
@@ -368,7 +369,7 @@ namespace LiteDbExplorer.Modules
                 }
 
                 collection.Database.RenameCollection(currentName, maybeName.Value);
-                return Result.Ok();
+                return Result.Success();
 
             }
             catch (Exception exc)
@@ -388,7 +389,7 @@ namespace LiteDbExplorer.Modules
                 {
                     collection.Database.DropCollection(collectionName);
 
-                    return Task.FromResult(Result.Ok(collection));
+                    return Task.FromResult(Result.Success(collection));
                 }
 
                 return Task.FromResult(Result.Failure<CollectionReference>(Fails.Canceled));
@@ -526,7 +527,7 @@ namespace LiteDbExplorer.Modules
             
             Clipboard.SetData(DataFormats.Text, documentAggregator.Serialize(true, false));
 
-            return Task.FromResult(Result.Ok());
+            return Task.FromResult(Result.Success());
         }
         
         public Task<Maybe<DocumentReference>> OpenEditDocument(DocumentReference document)
@@ -541,7 +542,7 @@ namespace LiteDbExplorer.Modules
             {
                 if (string.IsNullOrWhiteSpace(textData))
                 {
-                    return Task.FromResult(Result.Ok(CollectionDocumentChangeEventArgs.Nome));
+                    return Task.FromResult(Result.Success(CollectionDocumentChangeEventArgs.Nome));
                 }
 
                 var newValue = JsonSerializer.Deserialize(textData);
@@ -564,7 +565,7 @@ namespace LiteDbExplorer.Modules
 
                 var documentsUpdate = new CollectionDocumentChangeEventArgs(ReferenceNodeChangeAction.Add, newDocs, collection);
 
-                return Task.FromResult(Result.Ok(documentsUpdate));
+                return Task.FromResult(Result.Success(documentsUpdate));
             }
             catch (Exception e)
             {
@@ -605,7 +606,7 @@ namespace LiteDbExplorer.Modules
                 PostAction = (optionsResult.Model.EditAfterCreate || optionsResult.Action is AddDocumentOptions.ACTION_OK_AND_EDIT) ? "edit" : null
             };
 
-            return Result.Ok(documentsCreated);
+            return Result.Success(documentsCreated);
         }
 
         private async Task<Maybe<string>> ExportToJson(ICollection<DocumentReference> documents, string name = "")

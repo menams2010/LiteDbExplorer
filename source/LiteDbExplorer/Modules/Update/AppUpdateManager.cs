@@ -252,7 +252,7 @@ namespace LiteDbExplorer.Modules
                     .Dismiss().WithButton(IsUpdatePrepared ? "Restart to install" : "Download",
                         async button => { await DoUpdate(); })
                     .WithButton("Release notes",
-                        button => { IoC.Get<IApplicationInteraction>().ShowReleaseNotes(LastVersion); })
+                        async button => { await IoC.Get<IApplicationInteraction>().ShowReleaseNotes(LastVersion); })
                     .Dismiss().WithButton("Later", button => { })
                     .Queue();
                 

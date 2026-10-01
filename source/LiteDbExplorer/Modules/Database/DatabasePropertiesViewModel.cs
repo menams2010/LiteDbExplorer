@@ -63,21 +63,21 @@ namespace LiteDbExplorer.Modules.Database
 
         public bool CanAcceptButton => HasChanges;
 
-        public void AcceptButton()
+        public async Task AcceptButton()
         {
             if (_databaseReference.UserVersion != UserVersion)
             {
                 _databaseReference.UserVersion = UserVersion;
             }
 
-            TryClose(true);
+            await TryCloseAsync(true);
         }
 
         public bool CanCancelButton => true;
 
-        public void CancelButton()
+        public async Task CancelButton()
         {
-            TryClose(false);
+            await TryCloseAsync(false);
         }
 
         [UsedImplicitly]
@@ -137,7 +137,7 @@ namespace LiteDbExplorer.Modules.Database
 
             DatabaseFileInfo = databaseFileInfo;
 
-            MetadataJson = JsonSerializer.Serialize(engineInfoDocument, true, false);
+            MetadataJson = JsonSerializer.Serialize(engineInfoDocument, true);
         }
 
     }

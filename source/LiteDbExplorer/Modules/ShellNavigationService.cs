@@ -109,7 +109,7 @@ namespace LiteDbExplorer.Wpf.Framework
             // Publish an aggregator event to let the shell/other VMs know to change their active view
             await _aggregator.PublishOnUIThreadAsync(new NavigationRequestMessage(viewModel));
 
-            return Result.Ok();
+            return Result.Success();
         }
 
         protected IScreen ResolveViewModel(Type viewModelType, object modelParams)

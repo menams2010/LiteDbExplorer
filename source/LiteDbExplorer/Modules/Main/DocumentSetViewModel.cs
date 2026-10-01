@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -32,11 +33,11 @@ namespace LiteDbExplorer.Modules.Main
         {
             _eventAggregator = eventAggregator;
 
-            _eventAggregator.Subscribe(this);
+            _eventAggregator.SubscribeOnUIThread(this);
 
             DisplayName = $"LiteDB Explorer {AppConstants.Application.CurrentVersion}";
 
-            CloseDocumentCommand = new RelayCommand<FrameworkElement>(CloseDocument);
+            CloseDocumentCommand = new RelayCommand<FrameworkElement>(async element => await CloseDocument(element));
         }
         
         public Guid Id { get; } = Guid.NewGuid();
@@ -63,26 +64,24 @@ namespace LiteDbExplorer.Modules.Main
 
                 if (value is IDocument document)
                 {
-                    ActivateItem(document);
+                    Execute.OnUIThread(async () => await ActivateItemAsync(document));
                 }
 
                 NotifyOfPropertyChange(() => ActiveLayoutItem);
             }
         }
 
-        public void OpenDocument(IDocument model)
+        public async Task OpenDocument(IDocument model)
         {
-            ActivateItem(model);
+            await ActivateItemAsync(model);
             model.IsSelected = true;
         }
 
-        public Task OpenDocument<TDocument>() where TDocument : IDocument
+        public async Task OpenDocument<TDocument>() where TDocument : IDocument
         {
             var doc = IoC.Get<TDocument>();
 
-            OpenDocument(doc);
-
-            return Task.CompletedTask;
+            await OpenDocument(doc);
         }
 
         public IScreen FindViewModel(Type viewModelType, IReferenceId referenceId)
@@ -95,31 +94,32 @@ namespace LiteDbExplorer.Modules.Main
             return null;
         }
 
-        public void Handle(NavigationRequestMessage message)
+        public async Task HandleAsync(NavigationRequestMessage message, CancellationToken cancellationToken)
         {
             if (message.ViewModel is IDocument document)
             {
-                OpenDocument(document);
+                await ActivateItemAsync(document, cancellationToken);
+                document.IsSelected = true;
             }
         }
 
-        public Task<TDocument> OpenDocument<TDocument, TNode>(TDocument document, TNode initPayload) where TDocument : IDocument<TNode> where TNode : IReferenceId
+        public async Task<TDocument> OpenDocument<TDocument, TNode>(TDocument document, TNode initPayload) where TDocument : IDocument<TNode> where TNode : IReferenceId
         {
             if (!string.IsNullOrEmpty(initPayload.InstanceId))
             {
                 var instance = Items.OfType<TDocument>().FirstOrDefault(p => !string.IsNullOrEmpty(p.InstanceId) && p.InstanceId.Equals(initPayload.InstanceId));
                 if (instance != null)
                 {
-                    ActiveItem = instance;
-                    return Task.FromResult(instance);
+                    await ActivateItemAsync(instance);
+                    return instance;
                 }
             }
             
             document.Init(initPayload);
 
-            OpenDocument(document);
+            await OpenDocument(document);
 
-            return Task.FromResult(document);
+            return document;
         }
 
         public async Task<TDocument> OpenDocument<TDocument, TNode>(TNode initPayload) where TDocument : IDocument<TNode> where TNode : IReferenceId
@@ -129,21 +129,21 @@ namespace LiteDbExplorer.Modules.Main
             return model;
         }
 
-        public void CloseDocument(FrameworkElement element)
+        public async Task CloseDocument(FrameworkElement element)
         {
             if (element.DataContext is IDocument document)
             {
-                CloseDocument(document);
+                await CloseDocument(document);
             }
         }
 
-        public void CloseDocument(IDocument document)
+        public Task CloseDocument(IDocument document)
         {
-            DeactivateItem(document, true);
+            return DeactivateItemAsync(document, true);
         }
 
         [UsedImplicitly]
-        public void CloseAllDocuments()
+        public async Task CloseAllDocuments()
         {
             if (Items == null)
             {
@@ -152,7 +152,7 @@ namespace LiteDbExplorer.Modules.Main
 
             foreach (var document in Items.ToList())
             {
-                CloseDocument(document);
+                await CloseDocument(document);
             }
         }
 
@@ -168,7 +168,7 @@ namespace LiteDbExplorer.Modules.Main
             await OpenDocument<IStartupDocument>();
         }
 
-        public override void ActivateItem(IDocument item)
+        public override async Task ActivateItemAsync(IDocument item, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_closing)
             {
@@ -179,12 +179,14 @@ namespace LiteDbExplorer.Modules.Main
 
             var currentActiveItem = ActiveItem;
             
-            base.ActivateItem(item);
+            await base.ActivateItemAsync(item, cancellationToken);
             
             if (item != null)
             {
-                item.Activate();
+                await item.ActivateAsync(cancellationToken);
                 item.IsSelected = true;
+                item.PropertyChanged -= DocumentOnPropertyChanged;
+                item.UpdateGroupDisplayRequest -= DocumentOnUpdateGroupDisplayRequest;
                 item.PropertyChanged += DocumentOnPropertyChanged;
                 item.UpdateGroupDisplayRequest += DocumentOnUpdateGroupDisplayRequest;
             }
@@ -197,13 +199,13 @@ namespace LiteDbExplorer.Modules.Main
             }
         }
 
-        public override void DeactivateItem(IDocument item, bool close)
+        public override async Task DeactivateItemAsync(IDocument item, bool close, CancellationToken cancellationToken = default(CancellationToken))
         {
             RaiseActiveDocumentChanging();
             
-            if (close == false)
+            if (close == false && item != null)
             {
-                item?.Deactivate(false);
+                await item.DeactivateAsync(false, cancellationToken);
             }
 
             if (item != null)
@@ -212,7 +214,7 @@ namespace LiteDbExplorer.Modules.Main
                 item.UpdateGroupDisplayRequest -= DocumentOnUpdateGroupDisplayRequest;
             }
 
-            base.DeactivateItem(item, close);
+            await base.DeactivateItemAsync(item, close, cancellationToken);
 
             InvalidateDisplayGroup();
 

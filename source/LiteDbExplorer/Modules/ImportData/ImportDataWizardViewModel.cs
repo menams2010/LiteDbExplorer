@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using JetBrains.Annotations;
 using LiteDbExplorer.Modules.Shared;
 using LiteDbExplorer.Wpf.Framework;
-using ReactiveUI;
 
 namespace LiteDbExplorer.Modules.ImportData
 {
@@ -34,16 +36,16 @@ namespace LiteDbExplorer.Modules.ImportData
         {
         }
 
-        protected override void OnViewReady(object view)
+        protected override async void OnViewReady(object view)
         {
             base.OnViewReady(view);
 
             var importDataHandlerSelector = IoC.Get<ImportDataHandlerSelector>();
 
-            ActivateItem(importDataHandlerSelector);
+            await ActivateItemAsync(importDataHandlerSelector);
         }
 
-        public override void ActivateItem(IStepsScreen item)
+        public override async Task ActivateItemAsync(IStepsScreen item, CancellationToken cancellationToken = default(CancellationToken))
         {
             _activeItemObservable?.Dispose();
 
@@ -52,18 +54,22 @@ namespace LiteDbExplorer.Modules.ImportData
                 PreviousItems.Push(ActiveItem);
             }
             
-            base.ActivateItem(item);
+            await base.ActivateItemAsync(item, cancellationToken);
             
-            _activeItemObservable = item
-                .ObservableForProperty(screen => screen.HasNext)
+            _activeItemObservable = item == null ? null : Observable
+                .FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
+                    handler => item.PropertyChanged += handler,
+                    handler => item.PropertyChanged -= handler)
+                .Where(args => string.IsNullOrEmpty(args.EventArgs.PropertyName) ||
+                               args.EventArgs.PropertyName == nameof(IStepsScreen.HasNext))
                 .Subscribe(args => NotifyOfPropertyChange(nameof(CanNext)));
 
             InvalidateProperties();
         }
 
-        public override void DeactivateItem(IStepsScreen item, bool close)
+        public override async Task DeactivateItemAsync(IStepsScreen item, bool close, CancellationToken cancellationToken = default(CancellationToken))
         {
-            base.DeactivateItem(item, close);
+            await base.DeactivateItemAsync(item, close, cancellationToken);
 
             PreviousItems.Push(item);
 
@@ -82,21 +88,27 @@ namespace LiteDbExplorer.Modules.ImportData
 
             if (await ActiveItem?.Next() is IStepsScreen next)
             {
-                ActivateItem(next);
+                await ActivateItemAsync(next);
             }
 
             IsBusy = false;
         }
 
         [UsedImplicitly]
-        public void Previous()
+        public async Task Previous()
         {
             var previous = PreviousItems.Pop();
             if (previous != null)
             {
                 _suppressPreviousPush = true;
-                ActivateItem(previous);
-                _suppressPreviousPush = false;
+                try
+                {
+                    await ActivateItemAsync(previous);
+                }
+                finally
+                {
+                    _suppressPreviousPush = false;
+                }
             }
 
             InvalidateProperties();

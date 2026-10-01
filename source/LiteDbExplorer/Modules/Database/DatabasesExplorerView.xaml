@@ -319,7 +319,7 @@
 
             <Grid x:Name="FindTextPanel" Visibility="Collapsed">
                 <materialDesign:Card Margin="5,4" VerticalAlignment="Top" HorizontalAlignment="Right"
-                                     materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                     materialDesign:ElevationAssist.Elevation="Dp2"
                                      Background="{StaticResource HighlightColorBrush}">
                     <Border
                         x:Name="FindTextPlaceholderBorder"

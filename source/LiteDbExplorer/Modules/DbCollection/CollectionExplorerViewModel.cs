@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -61,7 +62,7 @@ namespace LiteDbExplorer.Modules.DbCollection
             PasteDocumentCommand = new AsyncCommand(PasteDocument, CanPasteDocument, this);
 
             RefreshCollectionCommand = new RelayCommand(_ => RefreshCollection(), o => CanRefreshCollection());
-            EditDbPropertiesCommand = new RelayCommand(_ => EditDbProperties(), o => CanEditDbProperties());
+            EditDbPropertiesCommand = new RelayCommand(async _ => await EditDbProperties(), o => CanEditDbProperties());
             FindCommand = new RelayCommand(_ => OpenFind(), o => CanOpenFind());
             FindNextCommand = new RelayCommand(_ => Find(), o => CanFind());
             FindPreviousCommand = new RelayCommand(_ => FindPrevious(), o => CanFind());
@@ -207,7 +208,7 @@ namespace LiteDbExplorer.Modules.DbCollection
         {
             if (value == null)
             {
-                TryClose(false);
+                Execute.OnUIThread(async () => await TryCloseAsync(false));
                 return;
             }
 
@@ -268,14 +269,15 @@ namespace LiteDbExplorer.Modules.DbCollection
             }
         }
 
-        protected override void OnDeactivate(bool close)
+        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
+            await base.OnDeactivateAsync(close, cancellationToken);
             if (close)
             {
                 Log.Debug("Deactivate {ViewModelName}, ReferenceId {ReferenceId}", nameof(CollectionExplorerViewModel),
                     InstanceId);
 
-                DeactivateItem(ActiveItem, true);
+                await DeactivateItemAsync(ActiveItem, true, cancellationToken);
 
                 SelectedDocuments = null;
                 SelectedDocument = null;
@@ -283,7 +285,7 @@ namespace LiteDbExplorer.Modules.DbCollection
             }
         }
 
-        protected void ActivateDocumentPreview()
+        protected async void ActivateDocumentPreview()
         {
             if (ActiveItem == null)
             {
@@ -291,12 +293,12 @@ namespace LiteDbExplorer.Modules.DbCollection
             }
 
             ActiveItem?.SetActiveDocument(_selectedDocument);
-            ActivateItem(ActiveItem);
+            await ActivateItemAsync(ActiveItem);
         }
 
-        protected void DeactivateDocumentPreview()
+        protected async void DeactivateDocumentPreview()
         {
-            DeactivateItem(ActiveItem, false);
+            await DeactivateItemAsync(ActiveItem, false);
         }
 
         #region Handles
@@ -309,13 +311,13 @@ namespace LiteDbExplorer.Modules.DbCollection
             }
         }
 
-        private void OnCollectionReferenceChanged(object sender, ReferenceChangedEventArgs<CollectionReference> e)
+        private async void OnCollectionReferenceChanged(object sender, ReferenceChangedEventArgs<CollectionReference> e)
         {
             switch (e.Action)
             {
                 case ReferenceNodeChangeAction.Remove:
                 case ReferenceNodeChangeAction.Dispose:
-                    TryClose();
+                    await TryCloseAsync();
                     break;
                 case ReferenceNodeChangeAction.Update:
                 case ReferenceNodeChangeAction.Add:
@@ -371,7 +373,7 @@ namespace LiteDbExplorer.Modules.DbCollection
             {
                 await _applicationInteraction.ActivateDefaultCollectionView(reference.CollectionReference,
                     reference.Items);
-                _eventAggregator.PublishOnUIThread(reference);
+                await _eventAggregator.PublishOnUIThreadAsync(reference);
 
                 if (reference.PostAction is "edit" && reference.DocumentReference != null)
                 {
@@ -443,7 +445,7 @@ namespace LiteDbExplorer.Modules.DbCollection
 
             await _databaseInteractions
                 .ImportDataFromText(CollectionReference, textData)
-                .Tap(update => _eventAggregator.PublishOnUIThread(update));
+                .Tap(update => _eventAggregator.PublishOnUIThreadAsync(update));
         }
 
         [UsedImplicitly]
@@ -465,9 +467,9 @@ namespace LiteDbExplorer.Modules.DbCollection
         }
 
         [UsedImplicitly]
-        public void EditDbProperties()
+        public async Task EditDbProperties()
         {
-            _applicationInteraction.OpenDatabaseProperties(CollectionReference.Database);
+            await _applicationInteraction.OpenDatabaseProperties(CollectionReference.Database);
         }
 
         [UsedImplicitly]

@@ -49,7 +49,7 @@ namespace LiteDbExplorer.Modules
             _navigationService = navigationService;
         }
 
-        public bool OpenDatabaseProperties(DatabaseReference database)
+        public async Task<bool> OpenDatabaseProperties(DatabaseReference database)
         {
             var vm = IoC.Get<IDatabasePropertiesView>();
             vm.Init(database);
@@ -66,10 +66,10 @@ namespace LiteDbExplorer.Modules
             }
             .SizeToFit();
 
-            return _windowManager.ShowDialog(vm, null, dialogOptions.Value) == true;
+            return await _windowManager.ShowDialogAsync(vm, null, dialogOptions.Value) == true;
         }
 
-        public bool ShowImportWizard(ImportDataOptions options = null)
+        public async Task<bool> ShowImportWizard(ImportDataOptions options = null)
         {
             var vm = IoC.Get<ImportDataWizardViewModel>();
             vm.Init(options);
@@ -85,7 +85,7 @@ namespace LiteDbExplorer.Modules
             }
             .SizeToFit();
 
-            return _windowManager.ShowDialog(vm, null, dialogOptions.Value) == true;
+            return await _windowManager.ShowDialogAsync(vm, null, dialogOptions.Value) == true;
         }
 
         public bool OpenEditDocument(DocumentReference document)
@@ -123,7 +123,7 @@ namespace LiteDbExplorer.Modules
         {
             await _navigationService.Navigate<QueryViewModel>(queryContext);
 
-            return Result.Ok();
+            return Result.Success();
         }
         
 
@@ -162,24 +162,24 @@ namespace LiteDbExplorer.Modules
         {
             if (collection == null)
             {
-                return Result.Ok();
+                return Result.Success();
             }
 
             await _navigationService.Navigate<CollectionExplorerViewModel>(new CollectionReferencePayload(collection, selectedDocuments));
 
-            return Result.Ok();
+            return Result.Success();
         }
 
         public async Task<Result> ActivateDefaultDocumentView(DocumentReference document)
         {
             if (document == null)
             {
-                return Result.Ok();
+                return Result.Success();
             }
 
             await _navigationService.Navigate<DocumentPreviewViewModel>(new DocumentReferencePayload(document));
 
-            return Result.Ok();
+            return Result.Success();
         }
         
         public void PutClipboardText(string text)
@@ -249,22 +249,22 @@ namespace LiteDbExplorer.Modules
         }
 
 
-        public void ShowAbout()
+        public Task ShowAbout()
         {
-            _windowManager.ShowDialog(IoC.Get<AboutViewModel>(), null, AboutViewModel.DefaultDialogOptions.Value);
+            return _windowManager.ShowDialogAsync(IoC.Get<AboutViewModel>(), null, AboutViewModel.DefaultDialogOptions.Value);
         }
 
-        public void ShowReleaseNotes(Version version = null)
+        public Task ShowReleaseNotes(Version version = null)
         {
             var viewModel = IoC.Get<ReleaseNotesViewModel>();
             viewModel.FilterVersion(version);
-            _windowManager.ShowDialog(viewModel, null, ReleaseNotesViewModel.DefaultDialogOptions.Value);
+            return _windowManager.ShowDialogAsync(viewModel, null, ReleaseNotesViewModel.DefaultDialogOptions.Value);
         }
 
-        public void ShowIssueHelper()
+        public Task ShowIssueHelper()
         {
             var viewModel = IoC.Get<IssueHelperViewModel>();
-            _windowManager.ShowDialog(viewModel, null, IssueHelperViewModel.DefaultDialogOptions.Value);
+            return _windowManager.ShowDialogAsync(viewModel, null, IssueHelperViewModel.DefaultDialogOptions.Value);
         }
 
 
@@ -378,15 +378,15 @@ namespace LiteDbExplorer.Modules
             return completionSource.Task;
         }
 
-        public async Task<Maybe<PasswordInput>> ShowPasswordInputDialog(string message, string caption = "", string predefined = "", bool rememberMe = false)
+        public Task<Maybe<PasswordInput>> ShowPasswordInputDialog(string message, string caption = "", string predefined = "", bool rememberMe = false)
         {
-            var passwordInput = new PasswordInput(message, caption, predefined, rememberMe);
-            var result = await Show.Dialog(AppConstants.DialogHosts.Shell).For(passwordInput);
-            if (result.Action is PasswordInput.CANCEL_ACTION)
+            var dialogResult = InputBoxWindow.ShowDialog(message, caption, predefined, null, out var inputText);
+            if (dialogResult != true)
             {
-                return Maybe<PasswordInput>.None;
+                return Task.FromResult(Maybe<PasswordInput>.None);
             }
-            return result.Model;
+
+            return Task.FromResult(Maybe<PasswordInput>.From(new PasswordInput(message, caption, inputText, rememberMe)));
         }
 
 

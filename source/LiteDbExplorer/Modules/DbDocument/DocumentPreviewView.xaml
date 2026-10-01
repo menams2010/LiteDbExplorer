@@ -35,7 +35,7 @@
                                 <materialDesign:PackIcon Kind="FileTree" Style="{StaticResource ToolPackIcon}"/>
                             </ListBoxItem>
                             <ListBoxItem>
-                                <materialDesign:PackIcon Kind="Json" Style="{StaticResource ToolPackIcon}"/>
+                                <materialDesign:PackIcon Kind="CodeJson" Style="{StaticResource ToolPackIcon}"/>
                             </ListBoxItem>
                         </ListBox>
 

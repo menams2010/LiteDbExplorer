@@ -95,7 +95,7 @@
                     <Setter Property="Background" Value="{DynamicResource ShellBackground}" />
                 </Style>
                 <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource MahTabItem}">
-                    <Setter Property="mah:ControlsHelper.HeaderFontSize" Value="14" />
+                    <Setter Property="mah:HeaderedControlHelper.HeaderFontSize" Value="14" />
                     <Setter Property="Padding" Value="0,0,0,6" />
                     <Setter Property="MinWidth" Value="30" />
                     <Setter Property="Background" Value="{DynamicResource ShellBackground}" />

@@ -95,8 +95,11 @@ namespace LiteDbExplorer.Core
             {
                 return string.Empty;
             }
-            
-            return string.Join(" - ", documentReference.Collection?.Name, documentReference.LiteDocument["_id"].AsString);
+
+            var idValue = documentReference.LiteDocument?["_id"];
+            var idDisplay = idValue.ToDisplayValue();
+
+            return string.Join(" - ", documentReference.Collection?.Name, idDisplay);
         }
 
         public static string ToDisplayValue(this BsonValue bsonValue, int? maxLength = null, ICultureFormat cultureFormat = null)

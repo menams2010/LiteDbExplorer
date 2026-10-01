@@ -26,7 +26,7 @@ namespace LiteDbExplorer.Wpf.Framework.Shell
         private ICommand _closeCommand;
         public override ICommand CloseCommand
         {
-            get { return _closeCommand ?? (_closeCommand = new RelayCommand(p => TryClose(null), p => true)); }
+            get { return _closeCommand ?? (_closeCommand = new RelayCommand(async p => await TryCloseAsync(null), p => true)); }
         }
 
         public void UpdateGroupDisplay()
@@ -75,7 +75,7 @@ namespace LiteDbExplorer.Wpf.Framework.Shell
         private ICommand _closeCommand;
         public virtual ICommand CloseCommand
         {
-            get { return _closeCommand ?? (_closeCommand = new RelayCommand(p => TryClose(null), p => true)); }
+            get { return _closeCommand ?? (_closeCommand = new RelayCommand(async p => await TryCloseAsync(null), p => true)); }
         }
 
         public abstract void Init(T item);
@@ -121,7 +121,7 @@ namespace LiteDbExplorer.Wpf.Framework.Shell
         private ICommand _closeCommand;
         public virtual ICommand CloseCommand
         {
-            get { return _closeCommand ?? (_closeCommand = new RelayCommand(p => TryClose(null), p => true)); }
+            get { return _closeCommand ?? (_closeCommand = new RelayCommand(async p => await TryCloseAsync(null), p => true)); }
         }
 
         public abstract void Init(T item);

@@ -90,9 +90,9 @@ namespace LiteDbExplorer
             _container.SatisfyImportsOnce(instance);
         }
 
-        protected override void OnStartup(object sender, StartupEventArgs e)
+        protected override async void OnStartup(object sender, StartupEventArgs e)
         {
-            DisplayRootViewFor<IShell>();
+            await DisplayRootViewForAsync<IShell>();
             RegisterApplicationCommandHandlers();
 
             var pipeServiceBootstrapper = _container.GetExportedValueOrDefault<PipeServiceBootstrapper>();
@@ -147,7 +147,7 @@ namespace LiteDbExplorer
 
         private void AddCustomConventions()
         {
-            MessageBinder.SpecialValues.Add(@"$originalSourceContext", context =>
+            MessageBinder.SpecialValues[@"$originalSourceContext"] = context =>
             {
                 if (!(context.EventArgs is RoutedEventArgs args))
                 {
@@ -160,7 +160,7 @@ namespace LiteDbExplorer
                 }
 
                 return fe.DataContext;
-            });
+            };
 
             ConventionManager.AddElementConvention<MenuItem>(MenuItem.CommandProperty, nameof(MenuItem.CommandParameter), nameof(MenuItem.Click));
             ConventionManager.AddElementConvention<ButtonBase>(ButtonBase.CommandProperty, nameof(ButtonBase.CommandParameter), nameof(ButtonBase.Click));

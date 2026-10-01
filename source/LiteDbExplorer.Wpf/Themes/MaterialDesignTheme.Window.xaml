@@ -32,7 +32,6 @@
         <Setter Property="NonActiveGlowBrush" Value="#9F000000" />
         <Setter Property="TitleCharacterCasing" Value="Normal" />
         <Setter Property="TitleAlignment" Value="Center" />
-        <Setter Property="TitlebarHeight" Value="35" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="WindowTransitionsEnabled" Value="False"/>
         <Setter Property="TextElement.Foreground" Value="{DynamicResource MaterialDesignBody}" />
@@ -52,7 +51,6 @@
         <Setter Property="OverrideDefaultWindowCommandsBrush" Value="{DynamicResource MaterialDesignBody}" />
         <Setter Property="TitleCharacterCasing" Value="Normal" />
         <Setter Property="TitleAlignment" Value="Center" />
-        <Setter Property="TitlebarHeight" Value="35" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource MaterialDesignBody}" />
         <Setter Property="TextElement.FontWeight" Value="Regular" />
         <Setter Property="TextElement.FontSize" Value="13" />
@@ -61,27 +59,27 @@
     </Style>
 
     <Style x:Key="LocalLightWindowButtonStyle" TargetType="{x:Type Button}"
-           BasedOn="{StaticResource LightMetroWindowButtonStyle}">
+           BasedOn="{StaticResource MahApps.Styles.Button.MetroWindow.Light}">
         <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
     </Style>
 
     <Style x:Key="LocalDarkWindowButtonStyle" TargetType="{x:Type Button}"
-           BasedOn="{StaticResource DarkMetroWindowButtonStyle}">
+           BasedOn="{StaticResource MahApps.Styles.Button.MetroWindow.Dark}">
         <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
     </Style>
 
     <Style x:Key="LocalLightCloseButtonStyle" TargetType="{x:Type Button}"
-           BasedOn="{StaticResource MahApps.Metro.Styles.WindowButton.Close.Light.Win10}">
+           BasedOn="{StaticResource MahApps.Styles.Button.MetroWindow.Close.Light.Win10}">
         <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
     </Style>
 
     <Style x:Key="LocalDarkCloseButtonStyle" TargetType="{x:Type Button}"
-           BasedOn="{StaticResource MahApps.Metro.Styles.WindowButton.Close.Dark.Win10}">
+           BasedOn="{StaticResource MahApps.Styles.Button.MetroWindow.Close.Dark.Win10}">
         <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
     </Style>
 
     <Style TargetType="{x:Type mahapps:WindowButtonCommands}"
-           BasedOn="{StaticResource MahApps.Metro.Styles.WindowButtonCommands.Win10}">
+           BasedOn="{StaticResource MahApps.Styles.WindowButtonCommands.Win10}">
         <Setter Property="LightMinButtonStyle" Value="{StaticResource LocalLightWindowButtonStyle}" />
         <Setter Property="LightMaxButtonStyle" Value="{StaticResource LocalLightWindowButtonStyle}" />
         <Setter Property="LightCloseButtonStyle" Value="{StaticResource LocalLightCloseButtonStyle}" />

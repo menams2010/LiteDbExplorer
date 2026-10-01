@@ -65,9 +65,9 @@ namespace LiteDbExplorer.Modules
                 }
             });
 
-            Add(Commands.Import, (sender, args) =>
+            Add(Commands.Import, async (sender, args) =>
             {
-                _applicationInteraction.ShowImportWizard();
+                await _applicationInteraction.ShowImportWizard();
             }, (sender, args) =>
             {
                 var hasDatabaseOpen = Store.Current.Databases.Any();

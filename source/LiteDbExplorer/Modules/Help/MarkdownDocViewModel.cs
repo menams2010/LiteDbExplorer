@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
 using CSharpFunctionalExtensions;
-using DynamicData.Annotations;
+using JetBrains.Annotations;
 using Humanizer;
 using LiteDbExplorer.Modules.Shared;
 using LiteDbExplorer.Wpf.Framework;
@@ -110,7 +110,7 @@ namespace LiteDbExplorer.Modules.Help
         {
             if (string.IsNullOrEmpty(RawUrl))
             {
-                return Result.Ok(string.Empty);
+                return Result.Success(string.Empty);
             }
 
             try
@@ -121,7 +121,7 @@ namespace LiteDbExplorer.Modules.Help
                     rawContent = await client.GetStringAsync(RawUrl);
                 }
 
-                return Result.Ok(rawContent);
+                return Result.Success(rawContent);
             }
             catch (Exception e)
             {

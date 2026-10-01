@@ -37,6 +37,31 @@
 
             </ResourceDictionary.MergedDictionaries>
 
+            <Style x:Key="MaterialDesignCaptionTextBlock" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+            </Style>
+
+            <Style x:Key="MaterialDesignBody2TextBlock" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+            </Style>
+
+            <Style x:Key="MaterialDesignBody1TextBlock" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+            </Style>
+
+            <Style x:Key="MaterialDesignSubheadingTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignBody1TextBlock}">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+
+            <Style x:Key="MaterialDesignTitleTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MaterialDesignSubheadingTextBlock}">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+
             <system:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">6</system:Double>
             <system:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">6</system:Double>
 
@@ -68,9 +93,7 @@
             </Style>
 
             <Style TargetType="forge:DialogWindow"
-                   BasedOn="{StaticResource {x:Type mahapps:MetroWindow}}">
-                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}" />
-            </Style>
+                   BasedOn="{StaticResource {x:Type mahapps:MetroWindow}}" />
 
             <!-- Dragablz Material Design -->
             <Style TargetType="{x:Type dragablz:TabablzControl}"
